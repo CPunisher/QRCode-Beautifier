@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        style="@style/param_layout"
+        android:paddingVertical="15dp">
+
+        <TextView android:id="@+id/param_name" style="@style/param_text_view"/>
+
+        <EditText
+                style="@style/param_edit_text"
+                android:id="@+id/param_input"
+                android:layout_marginHorizontal="20dp"
+                android:inputType="text"
+                android:maxLines="1"/>
+</LinearLayout>
