@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">QRCode Beautifier</string>
+
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="color_picker">拾色器</string>
+
+    <string name="send_to">发送到</string>
+
+    <string name="save">保存本地</string>
+    <string name="share">分享</string>
+    <string name="about">关于</string>
 </resources>

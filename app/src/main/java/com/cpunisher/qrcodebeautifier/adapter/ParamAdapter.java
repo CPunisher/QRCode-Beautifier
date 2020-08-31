@@ -1,16 +1,23 @@
 package com.cpunisher.qrcodebeautifier.adapter;
 
+import android.graphics.Color;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.cpunisher.qrcodebeautifier.R;
+import com.cpunisher.qrcodebeautifier.fragment.ColorPickerDialogFragment;
 import com.cpunisher.qrcodebeautifier.listener.ParamChangeListener;
 import com.cpunisher.qrcodebeautifier.listener.ParamUpdatedListener;
 import com.cpunisher.qrcodebeautifier.model.OptionModel;
 import com.cpunisher.qrcodebeautifier.model.StyleModel;
+import com.cpunisher.qrcodebeautifier.util.ColorHelper;
 import com.cpunisher.qrcodebeautifier.util.ParamTypeHelper;
+import com.jaredrummler.android.colorpicker.ColorPanelView;
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
 public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHolder> implements ParamChangeListener {
 
@@ -47,7 +54,8 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
 
     @Override
     public void onParamChange(String value, int position) {
-        mDataset[position] = value;
+        if (value == null || value.isEmpty()) value = styleModel.params[position].def;
+            mDataset[position] = value;
         // notifyItemChanged(position);
         paramUpdatedListener.onParamUpdated(styleModel, mDataset);
     }
@@ -112,12 +120,32 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
     }
 
     public static class ParamColorViewHolder extends ParamViewHolder {
+        public ColorPanelView colorPanelView;
         public ParamColorViewHolder(View itemView, ParamChangeListener listener) {
             super(itemView, listener);
+            colorPanelView = itemView.findViewById(R.id.param_color_panel);
+            colorPanelView.setOnClickListener(v -> {
+                AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
+                ColorPickerDialogFragment colorPickerDialogFragment = new ColorPickerDialogFragment(new ColorPickerDialogListener() {
+                    @Override
+                    public void onColorSelected(int dialogId, int color) {
+                        colorPanelView.setColor(color);
+                        listener.onParamChange(ColorHelper.toColorHex(color), getAdapterPosition());
+                    }
+                    @Override
+                    public void onDialogDismissed(int dialogId) { }
+                });
+
+                Bundle args = new Bundle();
+                args.putInt("color", colorPanelView.getColor());
+                colorPickerDialogFragment.setArguments(args);
+                colorPickerDialogFragment.show(activity.getSupportFragmentManager(), "colorPicker");
+            });
         }
         @Override
         public void init(StyleModel styleModel, String[] dataset, int position) {
             super.init(styleModel, dataset, position);
+            colorPanelView.setColor(Color.parseColor(dataset[position]));
         }
     }
 }

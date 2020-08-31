@@ -13,6 +13,7 @@
             android:background="@drawable/bottom_border"
             android:paddingVertical="15dp"
             android:paddingHorizontal="120dp">
+
         <ImageView
                 android:id="@+id/qrcode_result"
                 android:layout_width="0dp"

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:paddingHorizontal="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <com.jaredrummler.android.colorpicker.ColorPickerView
+            android:id="@+id/cpv_color_picker_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_alignLeft="@id/cpv_color_picker_view"
+            android:layout_alignRight="@id/cpv_color_picker_view"
+            android:layout_below="@id/cpv_color_picker_view"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+        <com.jaredrummler.android.colorpicker.ColorPanelView
+                android:id="@id/cpv_color_panel_old"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.5"
+                app:cpv_borderColor="#0099cc"
+                app:cpv_colorShape="square"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center"
+                android:text="→"
+                android:textSize="20sp"
+        />
+
+        <com.jaredrummler.android.colorpicker.ColorPanelView
+                android:id="@id/cpv_color_panel_new"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.5"
+                app:cpv_colorShape="square"
+        />
+    </LinearLayout>
+</RelativeLayout>
