@@ -1,12 +1,8 @@
 package com.cpunisher.qrcodebeautifier.activity;
 
-import android.content.Context;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
+import android.view.MenuItem;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.cpunisher.qrcodebeautifier.R;
 import com.cpunisher.qrcodebeautifier.fragment.StyleListFragment;
@@ -32,9 +28,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            this.onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onBackPressed() {
-
-
-        super.onBackPressed();
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if (count == 0) super.onBackPressed();
+        else getSupportFragmentManager().popBackStack();
     }
 }
