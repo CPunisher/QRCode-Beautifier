@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.cpunisher.qrcodebeautifier.R;
 import com.cpunisher.qrcodebeautifier.fragment.ColorPickerDialogFragment;
+import com.cpunisher.qrcodebeautifier.fragment.EditTextDialogFragment;
 import com.cpunisher.qrcodebeautifier.listener.ParamChangeListener;
 import com.cpunisher.qrcodebeautifier.listener.ParamUpdatedListener;
 import com.cpunisher.qrcodebeautifier.model.OptionModel;
@@ -55,7 +56,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
     @Override
     public void onParamChange(String value, int position) {
         if (value == null || value.isEmpty()) value = styleModel.params[position].def;
-            mDataset[position] = value;
+        mDataset[position] = value;
         // notifyItemChanged(position);
         paramUpdatedListener.onParamUpdated(styleModel, mDataset);
     }
@@ -77,22 +78,30 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
     }
 
     public static class ParamEditViewHolder extends ParamViewHolder {
-        public EditText editText;
-
+        public TextView editText;
+        public ParamChangeListener listener;
         public ParamEditViewHolder(View itemView, ParamChangeListener listener) {
             super(itemView, listener);
+            this.listener = listener;
             editText = itemView.findViewById(R.id.param_input);
-            editText.setOnFocusChangeListener((v, hasFocus) -> {
-                if (!hasFocus) {
-                    listener.onParamChange(editText.getText().toString(), getAdapterPosition());
-                }
-            });
         }
         @Override
         public void init(StyleModel styleModel, String[] dataset, int position) {
             super.init(styleModel, dataset, position);
             editText.setHint(styleModel.params[position].def);
             editText.setText(dataset[position]);
+            itemView.setOnClickListener(v -> {
+                AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
+                EditTextDialogFragment editTextDialogFragment = new EditTextDialogFragment(styleModel.params[position], (dialogId, text) -> {
+                    editText.setText(text);
+                    listener.onParamChange(text, getAdapterPosition());
+                });
+
+                Bundle args = new Bundle();
+                args.putString("text", editText.getText().toString());
+                editTextDialogFragment.setArguments(args);
+                editTextDialogFragment.show(activity.getSupportFragmentManager(), "editText");
+            });
         }
     }
 
@@ -124,7 +133,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
         public ParamColorViewHolder(View itemView, ParamChangeListener listener) {
             super(itemView, listener);
             colorPanelView = itemView.findViewById(R.id.param_color_panel);
-            colorPanelView.setOnClickListener(v -> {
+            itemView.setOnClickListener(v -> {
                 AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
                 ColorPickerDialogFragment colorPickerDialogFragment = new ColorPickerDialogFragment(new ColorPickerDialogListener() {
                     @Override

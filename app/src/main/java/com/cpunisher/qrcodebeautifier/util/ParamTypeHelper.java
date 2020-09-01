@@ -17,8 +17,8 @@ public class ParamTypeHelper {
     private int id = 0;
 
     static {
-        getInstance().registerParamType("string", R.layout.item_param_string, ParamAdapter.ParamEditViewHolder.class);
-        getInstance().registerParamType("number", R.layout.item_param_number, ParamAdapter.ParamEditViewHolder.class);
+        getInstance().registerParamType("string", R.layout.item_param_input, ParamAdapter.ParamEditViewHolder.class);
+        getInstance().registerParamType("number", R.layout.item_param_input, ParamAdapter.ParamEditViewHolder.class);
         getInstance().registerParamType("option", R.layout.item_param_option, ParamAdapter.ParamOptionViewHolder.class);
         getInstance().registerParamType("color", R.layout.item_param_color, ParamAdapter.ParamColorViewHolder.class);
     }

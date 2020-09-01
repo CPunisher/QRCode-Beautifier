@@ -6,10 +6,8 @@
 
         <TextView android:id="@+id/param_name" style="@style/param_text_view"/>
 
-        <EditText
+        <TextView
                 style="@style/param_edit_text"
                 android:id="@+id/param_input"
-                android:layout_marginHorizontal="20dp"
-                android:inputType="number"
-                android:maxLines="1"/>
+                android:layout_marginHorizontal="20dp"/>
 </LinearLayout>
