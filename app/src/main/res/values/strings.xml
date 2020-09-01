@@ -10,4 +10,9 @@
     <string name="save">保存本地</string>
     <string name="share">分享</string>
     <string name="about">关于</string>
+
+    <string name="permission_access">需要外部写入权限</string>
+    <string name="permission_denied">权限不足</string>
+    <string name="save_successfully">保存成功</string>
+    <string name="save_failed">保存失败</string>
 </resources>

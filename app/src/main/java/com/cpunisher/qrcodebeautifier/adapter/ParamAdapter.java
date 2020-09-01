@@ -110,6 +110,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
         public ParamOptionViewHolder(View itemView, ParamChangeListener listener) {
             super(itemView, listener);
             spinner = itemView.findViewById(R.id.param_spinner);
+            itemView.setOnClickListener(v -> spinner.performClick());
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

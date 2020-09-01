@@ -73,6 +73,7 @@ public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHol
                 creatorFragment.setArguments(args);
 
                 FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out);
                 transaction.replace(R.id.fragment_container, creatorFragment);
                 transaction.addToBackStack(null);
 

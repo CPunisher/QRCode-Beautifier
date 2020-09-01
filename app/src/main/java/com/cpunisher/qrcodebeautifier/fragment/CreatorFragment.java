@@ -1,6 +1,8 @@
 package com.cpunisher.qrcodebeautifier.fragment;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,6 +38,8 @@ import java.util.Locale;
 
 
 public class CreatorFragment extends Fragment implements ParamUpdatedListener {
+
+    private static final int PERMISSION_REQUEST_WRITE = 0;
 
     private StyleModel styleModel;
     private ImageView resultImageView;
@@ -67,6 +72,15 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_WRITE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            saveImg();
+        } else {
+            Toast.makeText(getContext(), R.string.permission_denied, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
             try {
@@ -93,19 +107,27 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
             }
             return true;
         } else if (item.getItemId() == R.id.action_save) {
-            try {
-                Bitmap bitmap = ((BitmapDrawable) resultImageView.getDrawable()).getBitmap();
-                String date = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
-                ExternalStorageHelper.saveJpg(bitmap, styleModel.name + "_" + date, this.getContext());
-                Toast.makeText(getContext(), "Save successfully", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                Toast.makeText(getContext(), "Save error", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
+            if (getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                saveImg();
+            } else {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_WRITE);
             }
         } else if (item.getItemId() == R.id.action_about) {
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void saveImg() {
+        try {
+            Bitmap bitmap = ((BitmapDrawable) resultImageView.getDrawable()).getBitmap();
+            String date = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(new Date());
+            ExternalStorageHelper.saveJpg(bitmap, styleModel.name + "_" + date, this.getContext());
+            Toast.makeText(getContext(), R.string.save_successfully, Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(getContext(), R.string.save_failed, Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 
     @Override

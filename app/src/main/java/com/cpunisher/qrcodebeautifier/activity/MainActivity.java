@@ -2,7 +2,6 @@ package com.cpunisher.qrcodebeautifier.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.cpunisher.qrcodebeautifier.R;
 import com.cpunisher.qrcodebeautifier.fragment.StyleListFragment;
