@@ -117,7 +117,7 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
     @Override
     public void onParamUpdated(StyleModel styleModel, String[] params) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(References.QRCODE_URL).append("?");
+        stringBuilder.append(References.QRCODE_URL).append("?style=").append(styleModel.id).append("&");
 
         for (int i = 0; i < params.length; i++) {
             ParamModel paramModel = styleModel.params[i];
