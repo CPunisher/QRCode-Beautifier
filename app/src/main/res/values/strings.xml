@@ -20,4 +20,6 @@
     <string name="fetch_list_error">拉取样式列表失败</string>
     <string name="collect_successfully">收藏成功</string>
     <string name="toggle_collection">切换到收藏列表</string>
+
+    <string name="collection_name">收藏名称</string>
 </resources>

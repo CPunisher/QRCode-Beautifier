@@ -12,6 +12,7 @@ import android.view.*;
 import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -113,7 +114,18 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_WRITE);
             }
         } else if (item.getItemId() == R.id.action_collect) {
-            mAdapter.saveToCollection(getContext());
+            AppCompatActivity activity = (AppCompatActivity) this.getContext();
+            ParamModel virtualParam = new ParamModel("",
+                    getResources().getString(R.string.collection_name), "string",
+                    styleModel.name, null);
+            EditTextDialogFragment editTextDialogFragment = new EditTextDialogFragment(virtualParam, (dialogId, text) -> {
+                mAdapter.saveToCollection(getContext(), text);
+            });
+
+            Bundle args = new Bundle();
+            args.putString("text", styleModel.name);
+            editTextDialogFragment.setArguments(args);
+            editTextDialogFragment.show(activity.getSupportFragmentManager(), "editText");
         } else if (item.getItemId() == R.id.action_about) {
 
         }

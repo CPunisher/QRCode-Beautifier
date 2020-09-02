@@ -45,7 +45,7 @@ public class EditTextDialogFragment extends DialogFragment {
         editText.setMaxLines(1);
         editText.setText(initText);
         editText.setHint(paramModel.def);
-        if ("number".equals(paramModel.type)) editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+        if ("number".equals(paramModel.type)) editText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
 
         editText.requestFocus();
         editText.post(() -> {

@@ -9,4 +9,14 @@ public class ParamModel implements Serializable {
     public String type;
     public String def;
     public OptionModel[] extra;
+
+    public ParamModel() {}
+
+    public ParamModel(String id, String name, String type, String def, OptionModel[] extra) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.def = def;
+        this.extra = extra;
+    }
 }

@@ -53,8 +53,8 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
         return paramViewHolder;
     }
 
-    public void saveToCollection(final Context context) {
-        new AddCollectionTask(context).execute();
+    public void saveToCollection(final Context context, String name) {
+        new AddCollectionTask(context).execute(name);
     }
 
     @Override
@@ -173,7 +173,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
         }
     }
 
-    private class AddCollectionTask extends AsyncTask<Void, Void, Void> {
+    private class AddCollectionTask extends AsyncTask<String, Void, Void> {
 
         final Context context;
 
@@ -182,8 +182,8 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            AppDatabase.getInstance(context).collectionDao().insertCollection(EntityHelper.toCollection(styleModel, Arrays.asList(mDataset), context));
+        protected Void doInBackground(String... strings) {
+            AppDatabase.getInstance(context).collectionDao().insertCollection(EntityHelper.toCollection(styleModel, Arrays.asList(mDataset), strings[0], context));
             return null;
         }
 

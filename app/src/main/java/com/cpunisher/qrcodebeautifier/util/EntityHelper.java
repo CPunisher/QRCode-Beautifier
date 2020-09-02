@@ -42,10 +42,10 @@ public class EntityHelper {
         return styleModels;
     }
 
-    public static Collection toCollection(StyleModel styleModel, List<String> values, final Context context) {
+    public static Collection toCollection(StyleModel styleModel, List<String> values, String collectionName, final Context context) {
         Style style = new Style();
         style.styleId = styleModel.id;
-        style.name = styleModel.name;
+        style.name = collectionName;
         style.description = styleModel.description;
         style.img = styleModel.img;
 
