@@ -10,9 +10,14 @@
     <string name="save">保存本地</string>
     <string name="share">分享</string>
     <string name="about">关于</string>
+    <string name="toggle">切换</string>
+    <string name="collect">添加到收藏</string>
 
     <string name="permission_access">需要外部写入权限</string>
     <string name="permission_denied">权限不足</string>
     <string name="save_successfully">保存成功</string>
     <string name="save_failed">保存失败</string>
+    <string name="fetch_list_error">拉取样式列表失败</string>
+    <string name="collect_successfully">收藏成功</string>
+    <string name="toggle_collection">切换到收藏列表</string>
 </resources>

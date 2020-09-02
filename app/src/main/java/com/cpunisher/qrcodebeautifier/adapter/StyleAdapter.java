@@ -1,18 +1,30 @@
 package com.cpunisher.qrcodebeautifier.adapter;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.bumptech.glide.Glide;
 import com.cpunisher.qrcodebeautifier.R;
+import com.cpunisher.qrcodebeautifier.db.AppDatabase;
+import com.cpunisher.qrcodebeautifier.db.entity.Collection;
 import com.cpunisher.qrcodebeautifier.fragment.CreatorFragment;
-import com.cpunisher.qrcodebeautifier.model.StyleModel;
+import com.cpunisher.qrcodebeautifier.http.RequestHelper;
+import com.cpunisher.qrcodebeautifier.http.StyleListListener;
+import com.cpunisher.qrcodebeautifier.pojo.StyleModel;
+import com.cpunisher.qrcodebeautifier.util.EntityHelper;
+import com.cpunisher.qrcodebeautifier.util.References;
 
 import java.util.List;
 
@@ -45,10 +57,23 @@ public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHol
         return mDataset.size();
     }
 
-    public void appendData(StyleModel styleModel) {
-        int index = this.mDataset.size();
-        this.mDataset.add(index, styleModel);
-        this.notifyItemInserted(index);
+    public void setData(List<StyleModel> styleModels) {
+        this.mDataset = styleModels;
+        this.notifyDataSetChanged();
+    }
+
+    public void fetchStyleList(final Context context) {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, References.STYLE_LIST_URL,
+                null, new StyleListListener(this), (error) -> {
+            Toast.makeText(context, R.string.fetch_list_error, Toast.LENGTH_SHORT);
+            Log.e(References.TAG, error.toString());
+        });
+
+        RequestHelper.getInstance(context).addToRequestQueue(jsonArrayRequest);
+    }
+
+    public void loadCollection(final Context context) {
+        new LoadCollectionTask(context).execute();
     }
 
     public static class StyleViewHolder extends RecyclerView.ViewHolder {
@@ -79,6 +104,29 @@ public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHol
 
                 transaction.commit();
             });
+        }
+    }
+
+    private class LoadCollectionTask extends AsyncTask<Void, Void, Void> {
+
+        final Context context;
+
+        public LoadCollectionTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            List<Collection> collectionList = AppDatabase.getInstance(context).collectionDao().getAll();
+            StyleAdapter.this.mDataset = EntityHelper.toStyleModels(collectionList);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            StyleAdapter.this.notifyDataSetChanged();
+            Toast.makeText(context, R.string.toggle_collection, Toast.LENGTH_SHORT).show();
         }
     }
 }

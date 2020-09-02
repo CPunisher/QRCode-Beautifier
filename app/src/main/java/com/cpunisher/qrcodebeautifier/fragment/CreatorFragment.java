@@ -22,9 +22,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.cpunisher.qrcodebeautifier.R;
 import com.cpunisher.qrcodebeautifier.adapter.ParamAdapter;
+import com.cpunisher.qrcodebeautifier.db.AppDatabase;
 import com.cpunisher.qrcodebeautifier.listener.ParamUpdatedListener;
-import com.cpunisher.qrcodebeautifier.model.ParamModel;
-import com.cpunisher.qrcodebeautifier.model.StyleModel;
+import com.cpunisher.qrcodebeautifier.pojo.ParamModel;
+import com.cpunisher.qrcodebeautifier.pojo.StyleModel;
+import com.cpunisher.qrcodebeautifier.util.EntityHelper;
 import com.cpunisher.qrcodebeautifier.util.ExternalStorageHelper;
 import com.cpunisher.qrcodebeautifier.util.References;
 
@@ -44,9 +46,7 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
     private StyleModel styleModel;
     private ImageView resultImageView;
     private CircularProgressDrawable circularProgressDrawable;
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
+    private ParamAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -55,10 +55,10 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
 
         View view = inflater.inflate(R.layout.fragment_creator, container, false);
         resultImageView = view.findViewById(R.id.qrcode_result);
-        recyclerView = view.findViewById(R.id.param_recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.param_recycler_view);
 
         recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(view.getContext());
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
 
         mAdapter = new ParamAdapter(styleModel, this);
@@ -112,6 +112,8 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
             } else {
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_WRITE);
             }
+        } else if (item.getItemId() == R.id.action_collect) {
+            mAdapter.saveToCollection(getContext());
         } else if (item.getItemId() == R.id.action_about) {
 
         }
@@ -132,7 +134,7 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.menu_creator, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

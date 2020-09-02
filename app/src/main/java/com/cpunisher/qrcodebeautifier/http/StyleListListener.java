@@ -1,15 +1,19 @@
 package com.cpunisher.qrcodebeautifier.http;
 
 import android.util.Log;
+import android.widget.Toast;
 import com.android.volley.Response;
 import com.cpunisher.qrcodebeautifier.adapter.StyleAdapter;
-import com.cpunisher.qrcodebeautifier.model.OptionModel;
-import com.cpunisher.qrcodebeautifier.model.ParamModel;
-import com.cpunisher.qrcodebeautifier.model.StyleModel;
+import com.cpunisher.qrcodebeautifier.pojo.OptionModel;
+import com.cpunisher.qrcodebeautifier.pojo.ParamModel;
+import com.cpunisher.qrcodebeautifier.pojo.StyleModel;
 import com.cpunisher.qrcodebeautifier.util.References;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class StyleListListener implements Response.Listener<JSONArray> {
 
@@ -23,6 +27,7 @@ public class StyleListListener implements Response.Listener<JSONArray> {
     public void onResponse(JSONArray response) {
         Log.d(References.TAG, response.toString());
 
+        List<StyleModel> styleModelList = new LinkedList<>();
         try {
             for (int i = 0; i < response.length(); i++) {
                 JSONObject jsonObject = response.getJSONObject(i);
@@ -54,8 +59,9 @@ public class StyleListListener implements Response.Listener<JSONArray> {
                         }
                     }
                 }
-                this.adapter.appendData(styleModel);
+                styleModelList.add(styleModel);
             }
+            this.adapter.setData(styleModelList);
         } catch (JSONException e) {
             e.printStackTrace();
         }

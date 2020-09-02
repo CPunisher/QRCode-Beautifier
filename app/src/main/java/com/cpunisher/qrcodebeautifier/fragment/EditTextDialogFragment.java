@@ -12,7 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import androidx.fragment.app.DialogFragment;
 import com.cpunisher.qrcodebeautifier.R;
-import com.cpunisher.qrcodebeautifier.model.ParamModel;
+import com.cpunisher.qrcodebeautifier.pojo.ParamModel;
 
 public class EditTextDialogFragment extends DialogFragment {
 

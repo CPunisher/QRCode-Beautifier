@@ -1,6 +1,8 @@
 package com.cpunisher.qrcodebeautifier.adapter;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,16 +11,21 @@ import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.cpunisher.qrcodebeautifier.R;
+import com.cpunisher.qrcodebeautifier.db.AppDatabase;
 import com.cpunisher.qrcodebeautifier.fragment.ColorPickerDialogFragment;
 import com.cpunisher.qrcodebeautifier.fragment.EditTextDialogFragment;
 import com.cpunisher.qrcodebeautifier.listener.ParamChangeListener;
 import com.cpunisher.qrcodebeautifier.listener.ParamUpdatedListener;
-import com.cpunisher.qrcodebeautifier.model.OptionModel;
-import com.cpunisher.qrcodebeautifier.model.StyleModel;
+import com.cpunisher.qrcodebeautifier.pojo.OptionModel;
+import com.cpunisher.qrcodebeautifier.pojo.StyleModel;
 import com.cpunisher.qrcodebeautifier.util.ColorHelper;
+import com.cpunisher.qrcodebeautifier.util.EntityHelper;
 import com.cpunisher.qrcodebeautifier.util.ParamTypeHelper;
 import com.jaredrummler.android.colorpicker.ColorPanelView;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
+
+import java.util.Arrays;
+import java.util.concurrent.Executors;
 
 public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHolder> implements ParamChangeListener {
 
@@ -27,12 +34,15 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
     private StyleModel styleModel;
     private String[] mDataset;
 
-    public ParamAdapter(StyleModel styleModel, ParamUpdatedListener paramUpdatedListener) {
+    public ParamAdapter(StyleModel styleModel, String[] mDataset, ParamUpdatedListener paramUpdatedListener) {
         this.paramUpdatedListener = paramUpdatedListener;
         this.styleModel = styleModel;
-        this.mDataset = new String[styleModel.params.length];
-        for (int i = 0; i< mDataset.length; i++) this.mDataset[i] = styleModel.params[i].def;
+        this.mDataset = mDataset;
         this.notifyDataSetChanged();
+    }
+
+    public ParamAdapter(StyleModel styleModel, ParamUpdatedListener paramUpdatedListener) {
+        this(styleModel, Arrays.stream(styleModel.params).map(p -> p.def).toArray(String[]::new), paramUpdatedListener);
     }
 
     @Override
@@ -41,6 +51,10 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
                 .inflate(ParamTypeHelper.getInstance().getLayout(viewType), parent, false);
         ParamViewHolder paramViewHolder = ParamTypeHelper.getInstance().instanceViewHolder(viewType, view, this);
         return paramViewHolder;
+    }
+
+    public void saveToCollection(final Context context) {
+        new AddCollectionTask(context).execute();
     }
 
     @Override
@@ -156,6 +170,27 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
         public void init(StyleModel styleModel, String[] dataset, int position) {
             super.init(styleModel, dataset, position);
             colorPanelView.setColor(Color.parseColor(dataset[position]));
+        }
+    }
+
+    private class AddCollectionTask extends AsyncTask<Void, Void, Void> {
+
+        final Context context;
+
+        public AddCollectionTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            AppDatabase.getInstance(context).collectionDao().insertCollection(EntityHelper.toCollection(styleModel, Arrays.asList(mDataset), context));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            Toast.makeText(context, R.string.collect_successfully, Toast.LENGTH_SHORT).show();
         }
     }
 }

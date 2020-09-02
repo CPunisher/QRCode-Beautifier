@@ -2,10 +2,9 @@ package com.cpunisher.qrcodebeautifier.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,11 +21,15 @@ import java.util.ArrayList;
 public class StyleListFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private StyleAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
+
+    private boolean displayCollection = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        this.setHasOptionsMenu(true);
+
         View view = inflater.inflate(R.layout.fragment_style_list, container, false);
         recyclerView = view.findViewById(R.id.styles_recycler_view);
 
@@ -37,17 +40,28 @@ public class StyleListFragment extends Fragment {
         mAdapter = new StyleAdapter(new ArrayList<>());
         recyclerView.setAdapter(mAdapter);
 
-        updateStyleModel();
+        mAdapter.fetchStyleList(this.getContext());
+        displayCollection = false;
         return view;
     }
 
-    private void updateStyleModel() {
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, References.STYLE_LIST_URL,
-                null, new StyleListListener((StyleAdapter) mAdapter), (error) -> {
-            Toast.makeText(this.getContext(), "Fail to get style list", Toast.LENGTH_SHORT);
-            Log.e(References.TAG, error.toString());
-        });
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_toggle) {
+            if (displayCollection) {
+                mAdapter.fetchStyleList(this.getContext());
+                displayCollection = false;
+            } else {
+                mAdapter.loadCollection(this.getContext());
+                displayCollection = true;
+            }
+        }
+        return false;
+    }
 
-        RequestHelper.getInstance(this.getContext()).addToRequestQueue(jsonArrayRequest);
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_list, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 }

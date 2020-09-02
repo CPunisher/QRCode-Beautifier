@@ -1,4 +1,4 @@
-package com.cpunisher.qrcodebeautifier.model;
+package com.cpunisher.qrcodebeautifier.pojo;
 
 import java.io.Serializable;
 
