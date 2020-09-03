@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,6 +32,7 @@ import java.util.List;
 public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHolder> {
 
     private List<StyleModel> mDataset;
+    private boolean displayCollection = true;
 
     public StyleAdapter(List<StyleModel> mDataset) {
         this.mDataset = mDataset;
@@ -46,10 +48,14 @@ public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHol
     @Override
     public void onBindViewHolder(StyleAdapter.StyleViewHolder holder, int position) {
         StyleModel styleModel = mDataset.get(position);
-
-        Glide.with(holder.itemView.getContext()).load(styleModel.img).into(holder.imageView);
         holder.textView.setText(styleModel.name);
         holder.mData = mDataset.get(position);
+
+        if (displayCollection) {
+            Glide.with(holder.imageView.getContext()).load(styleModel.imgBlog).into(holder.imageView);
+        } else {
+            Glide.with(holder.itemView.getContext()).load(styleModel.imgUri).into(holder.imageView);
+        }
     }
 
     @Override
@@ -68,15 +74,24 @@ public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHol
             Toast.makeText(context, R.string.fetch_list_error, Toast.LENGTH_SHORT);
             Log.e(References.TAG, error.toString());
         });
-
         RequestHelper.getInstance(context).addToRequestQueue(jsonArrayRequest);
     }
 
     public void loadCollection(final Context context) {
-        new LoadCollectionTask(context).execute();
+        new LoadCollectionTask(context).execute(true);
     }
 
-    public static class StyleViewHolder extends RecyclerView.ViewHolder {
+    public void toggleList(final Context context) {
+        if (displayCollection) {
+            fetchStyleList(context);
+            displayCollection = false;
+        } else {
+            loadCollection(context);
+            displayCollection = true;
+        }
+    }
+
+    public class StyleViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView imageView;
         public TextView textView;
@@ -89,6 +104,13 @@ public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHol
             textView = itemView.findViewById(R.id.style_name);
             styleWrapper = itemView.findViewById(R.id.style_wrapper);
 
+            styleWrapper.setOnLongClickListener((View v) -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+                builder.setMessage(R.string.remove_collection).setPositiveButton(R.string.ok, (dialog, which) -> {
+                    new DeleteCollectionTask(itemView.getContext()).execute(getAdapterPosition());
+                }).setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel()).show();
+                return true;
+            });
             styleWrapper.setOnClickListener((View v) -> {
                 AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
                 CreatorFragment creatorFragment = new CreatorFragment();
@@ -107,7 +129,30 @@ public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHol
         }
     }
 
-    private class LoadCollectionTask extends AsyncTask<Void, Void, Void> {
+    private class DeleteCollectionTask extends AsyncTask<Integer, Void, Integer> {
+
+        final Context context;
+
+        public DeleteCollectionTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected Integer doInBackground(Integer... integers) {
+            StyleModel styleModel = StyleAdapter.this.mDataset.get(integers[0]);
+            AppDatabase.getInstance(context).collectionDao().deleteCollection(styleModel);
+            return integers[0];
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            new LoadCollectionTask(context).execute(false);
+            Toast.makeText(context, R.string.delete_successfully, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class LoadCollectionTask extends AsyncTask<Boolean, Void, Boolean> {
 
         final Context context;
 
@@ -116,17 +161,17 @@ public class StyleAdapter extends RecyclerView.Adapter<StyleAdapter.StyleViewHol
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Boolean doInBackground(Boolean... booleans) {
             List<Collection> collectionList = AppDatabase.getInstance(context).collectionDao().getAll();
             StyleAdapter.this.mDataset = EntityHelper.toStyleModels(collectionList);
-            return null;
+            return booleans[0];
         }
 
         @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
+        protected void onPostExecute(Boolean message) {
+            super.onPostExecute(message);
             StyleAdapter.this.notifyDataSetChanged();
-            Toast.makeText(context, R.string.toggle_collection, Toast.LENGTH_SHORT).show();
+            if (message) Toast.makeText(context, R.string.toggle_collection, Toast.LENGTH_SHORT).show();
         }
     }
 }

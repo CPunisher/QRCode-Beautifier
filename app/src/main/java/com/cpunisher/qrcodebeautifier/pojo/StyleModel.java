@@ -7,6 +7,9 @@ public class StyleModel implements Serializable {
     public String id;
     public String name;
     public String description;
-    public String img;
+    public String imgUri;
     public ParamModel[] params;
+
+    public long databaseId;
+    public byte[] imgBlog;
 }

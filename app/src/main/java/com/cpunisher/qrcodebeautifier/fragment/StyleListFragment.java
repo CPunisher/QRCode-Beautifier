@@ -1,20 +1,13 @@
 package com.cpunisher.qrcodebeautifier.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.*;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.android.volley.Request;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.cpunisher.qrcodebeautifier.R;
 import com.cpunisher.qrcodebeautifier.adapter.StyleAdapter;
-import com.cpunisher.qrcodebeautifier.http.RequestHelper;
-import com.cpunisher.qrcodebeautifier.http.StyleListListener;
-import com.cpunisher.qrcodebeautifier.util.References;
 
 import java.util.ArrayList;
 
@@ -23,8 +16,6 @@ public class StyleListFragment extends Fragment {
     private RecyclerView recyclerView;
     private StyleAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-
-    private boolean displayCollection = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,21 +31,14 @@ public class StyleListFragment extends Fragment {
         mAdapter = new StyleAdapter(new ArrayList<>());
         recyclerView.setAdapter(mAdapter);
 
-        mAdapter.fetchStyleList(this.getContext());
-        displayCollection = false;
+        mAdapter.toggleList(this.getContext());
         return view;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_toggle) {
-            if (displayCollection) {
-                mAdapter.fetchStyleList(this.getContext());
-                displayCollection = false;
-            } else {
-                mAdapter.loadCollection(this.getContext());
-                displayCollection = true;
-            }
+            mAdapter.toggleList(this.getContext());
         }
         return false;
     }

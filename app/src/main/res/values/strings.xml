@@ -21,5 +21,7 @@
     <string name="collect_successfully">收藏成功</string>
     <string name="toggle_collection">切换到收藏列表</string>
 
+    <string name="delete_successfully">删除成功</string>
     <string name="collection_name">收藏名称</string>
+    <string name="remove_collection">是否取消收藏?</string>
 </resources>

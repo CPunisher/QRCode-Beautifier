@@ -1,7 +1,6 @@
 package com.cpunisher.qrcodebeautifier.http;
 
 import android.util.Log;
-import android.widget.Toast;
 import com.android.volley.Response;
 import com.cpunisher.qrcodebeautifier.adapter.StyleAdapter;
 import com.cpunisher.qrcodebeautifier.pojo.OptionModel;
@@ -37,7 +36,7 @@ public class StyleListListener implements Response.Listener<JSONArray> {
                 styleModel.id = jsonObject.optString("id");
                 styleModel.name = jsonObject.optString("name");
                 styleModel.description = jsonObject.optString("description");
-                styleModel.img = jsonObject.optString("img");
+                styleModel.imgUri = jsonObject.optString("img");
 
                 styleModel.params = new ParamModel[paramJsonArray.length()];
                 for (int j = 0; j < paramJsonArray.length(); j++) {

@@ -2,6 +2,8 @@ package com.cpunisher.qrcodebeautifier.db.dao;
 
 import androidx.room.*;
 import com.cpunisher.qrcodebeautifier.db.entity.*;
+import com.cpunisher.qrcodebeautifier.pojo.ParamModel;
+import com.cpunisher.qrcodebeautifier.pojo.StyleModel;
 
 import java.util.List;
 
@@ -25,8 +27,22 @@ public abstract class CollectionDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     public abstract long insertStyle(Style style);
 
-    @Delete
-    public abstract void delete(Style style);
+    @Query("DELETE FROM Style WHERE id = :styleId")
+    public abstract void deleteStyle(long styleId);
+
+    @Query("DELETE FROM Param WHERE styleId = :styleId")
+    public abstract void deleteParam(long styleId);
+
+    @Query("DELETE FROM Option WHERE paramId = :paramId")
+    public abstract void deleteOption(long paramId);
+
+    public void deleteCollection(final StyleModel styleModel) {
+        deleteStyle(styleModel.databaseId);
+        deleteParam(styleModel.databaseId);
+        for (ParamModel paramModel : styleModel.params) {
+            deleteOption(paramModel.databaseId);
+        }
+    }
 
     public void insertCollection(Collection collection) {
         long styleId = insertStyle(collection.style);

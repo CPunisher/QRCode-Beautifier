@@ -23,11 +23,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.cpunisher.qrcodebeautifier.R;
 import com.cpunisher.qrcodebeautifier.adapter.ParamAdapter;
-import com.cpunisher.qrcodebeautifier.db.AppDatabase;
 import com.cpunisher.qrcodebeautifier.listener.ParamUpdatedListener;
 import com.cpunisher.qrcodebeautifier.pojo.ParamModel;
 import com.cpunisher.qrcodebeautifier.pojo.StyleModel;
-import com.cpunisher.qrcodebeautifier.util.EntityHelper;
 import com.cpunisher.qrcodebeautifier.util.ExternalStorageHelper;
 import com.cpunisher.qrcodebeautifier.util.References;
 
@@ -55,6 +53,11 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
         this.styleModel = (StyleModel) getArguments().getSerializable("style_model");
 
         View view = inflater.inflate(R.layout.fragment_creator, container, false);
+        circularProgressDrawable = new CircularProgressDrawable(this.getContext());
+        circularProgressDrawable.setStrokeWidth(5.0f);
+        circularProgressDrawable.setCenterRadius(30.0f);
+        circularProgressDrawable.start();
+
         resultImageView = view.findViewById(R.id.qrcode_result);
         RecyclerView recyclerView = view.findViewById(R.id.param_recycler_view);
 
@@ -65,10 +68,6 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
         mAdapter = new ParamAdapter(styleModel, this);
         recyclerView.setAdapter(mAdapter);
 
-        circularProgressDrawable = new CircularProgressDrawable(this.getContext());
-        circularProgressDrawable.setStrokeWidth(5.0f);
-        circularProgressDrawable.setCenterRadius(30.0f);
-        circularProgressDrawable.start();
         return view;
     }
 
@@ -119,7 +118,7 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
                     getResources().getString(R.string.collection_name), "string",
                     styleModel.name, null);
             EditTextDialogFragment editTextDialogFragment = new EditTextDialogFragment(virtualParam, (dialogId, text) -> {
-                mAdapter.saveToCollection(getContext(), text);
+                mAdapter.saveToCollection(getContext(), text, resultImageView);
             });
 
             Bundle args = new Bundle();

@@ -12,12 +12,12 @@ public class Style {
     public String styleId;
     public String name;
     public String description;
-    public String img;
+    public byte[] img;
 
     public Style() { }
 
     @Ignore
-    public Style(String styleId, String name, String description, String img) {
+    public Style(String styleId, String name, String description, byte[] img) {
         this.styleId = styleId;
         this.name = name;
         this.description = description;

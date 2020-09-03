@@ -10,7 +10,7 @@ import com.cpunisher.qrcodebeautifier.db.entity.Option;
 import com.cpunisher.qrcodebeautifier.db.entity.Param;
 import com.cpunisher.qrcodebeautifier.db.entity.Style;
 
-@Database(entities = {Style.class, Param.class, Option.class}, version = 1)
+@Database(entities = {Style.class, Param.class, Option.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase instance;

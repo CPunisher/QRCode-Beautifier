@@ -4,7 +4,9 @@ import android.view.View;
 import com.cpunisher.qrcodebeautifier.R;
 import com.cpunisher.qrcodebeautifier.adapter.ParamAdapter;
 import com.cpunisher.qrcodebeautifier.listener.ParamChangeListener;
+import com.cpunisher.qrcodebeautifier.pojo.StyleModel;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +25,8 @@ public class ParamTypeHelper {
         getInstance().registerParamType("color", R.layout.item_param_color, ParamAdapter.ParamColorViewHolder.class);
     }
 
-    private ParamTypeHelper() {}
+    private ParamTypeHelper() {
+    }
 
     public static synchronized ParamTypeHelper getInstance() {
         if (instance == null) {
@@ -39,10 +42,13 @@ public class ParamTypeHelper {
         id++;
     }
 
-    public ParamAdapter.ParamViewHolder instanceViewHolder(int id, View itemView, ParamChangeListener listener) {
+    public ParamAdapter.ParamViewHolder instanceViewHolder(int id, View itemView, StyleModel styleModel, ParamChangeListener listener) {
         ParamAdapter.ParamViewHolder viewHolder = null;
         try {
-            viewHolder = idToClass.get(id).getConstructor(View.class, ParamChangeListener.class).newInstance(itemView, listener);
+            viewHolder = idToClass.get(id).getConstructor(StyleModel.class, View.class, ParamChangeListener.class)
+                    .newInstance(styleModel, itemView, listener);
+        } catch (InvocationTargetException e){
+            e.getTargetException().printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }

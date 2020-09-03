@@ -2,6 +2,7 @@ package com.cpunisher.qrcodebeautifier.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -25,7 +26,6 @@ import com.jaredrummler.android.colorpicker.ColorPanelView;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
 import java.util.Arrays;
-import java.util.concurrent.Executors;
 
 public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHolder> implements ParamChangeListener {
 
@@ -39,6 +39,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
         this.styleModel = styleModel;
         this.mDataset = mDataset;
         this.notifyDataSetChanged();
+        paramUpdatedListener.onParamUpdated(styleModel, mDataset);
     }
 
     public ParamAdapter(StyleModel styleModel, ParamUpdatedListener paramUpdatedListener) {
@@ -49,12 +50,11 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
     public ParamViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(ParamTypeHelper.getInstance().getLayout(viewType), parent, false);
-        ParamViewHolder paramViewHolder = ParamTypeHelper.getInstance().instanceViewHolder(viewType, view, this);
-        return paramViewHolder;
+        return ParamTypeHelper.getInstance().instanceViewHolder(viewType, view, styleModel, this);
     }
 
-    public void saveToCollection(final Context context, String name) {
-        new AddCollectionTask(context).execute(name);
+    public void saveToCollection(final Context context, String name, ImageView imageView) {
+        new AddCollectionTask(context, EntityHelper.imageToByteArray(imageView)).execute(name);
     }
 
     @Override
@@ -82,71 +82,97 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
 
     public static class ParamViewHolder extends RecyclerView.ViewHolder {
         public TextView textView;
-        public ParamViewHolder(View itemView, ParamChangeListener listener) {
+
+        public ParamViewHolder(StyleModel styleModel, View itemView, ParamChangeListener listener) {
             super(itemView);
             textView = itemView.findViewById(R.id.param_name);
         }
+
         public void init(StyleModel styleModel, String[] dataset, int position) {
             textView.setText(styleModel.params[position].name);
         }
     }
 
-    public static class ParamEditViewHolder extends ParamViewHolder {
+    public static class ParamEditViewHolder extends ParamViewHolder implements View.OnClickListener {
         public TextView editText;
         public ParamChangeListener listener;
-        public ParamEditViewHolder(View itemView, ParamChangeListener listener) {
-            super(itemView, listener);
+        public StyleModel styleModel;
+
+        public ParamEditViewHolder(StyleModel styleModel, View itemView, ParamChangeListener listener) {
+            super(styleModel, itemView, listener);
+            this.styleModel = styleModel;
             this.listener = listener;
             editText = itemView.findViewById(R.id.param_input);
+            itemView.setOnClickListener(this);
         }
+
         @Override
         public void init(StyleModel styleModel, String[] dataset, int position) {
             super.init(styleModel, dataset, position);
             editText.setHint(styleModel.params[position].def);
             editText.setText(dataset[position]);
-            itemView.setOnClickListener(v -> {
-                AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
-                EditTextDialogFragment editTextDialogFragment = new EditTextDialogFragment(styleModel.params[position], (dialogId, text) -> {
-                    editText.setText(text);
-                    listener.onParamChange(text, getAdapterPosition());
-                });
+        }
 
-                Bundle args = new Bundle();
-                args.putString("text", editText.getText().toString());
-                editTextDialogFragment.setArguments(args);
-                editTextDialogFragment.show(activity.getSupportFragmentManager(), "editText");
+        @Override
+        public void onClick(View v) {
+            AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
+            final int position = getAdapterPosition();
+            EditTextDialogFragment editTextDialogFragment = new EditTextDialogFragment(styleModel.params[position], (dialogId, text) -> {
+                editText.setText(text);
+                listener.onParamChange(text, position);
             });
+
+            Bundle args = new Bundle();
+            args.putString("text", editText.getText().toString());
+            editTextDialogFragment.setArguments(args);
+            editTextDialogFragment.show(activity.getSupportFragmentManager(), "editText");
         }
     }
 
     public static class ParamOptionViewHolder extends ParamViewHolder {
         public Spinner spinner;
-        public ParamOptionViewHolder(View itemView, ParamChangeListener listener) {
-            super(itemView, listener);
+        private boolean spinnerTouched;
+
+        public ParamOptionViewHolder(StyleModel styleModel, View itemView, ParamChangeListener listener) {
+            super(styleModel, itemView, listener);
             spinner = itemView.findViewById(R.id.param_spinner);
             itemView.setOnClickListener(v -> spinner.performClick());
+
+            spinner.setOnTouchListener((v, me) -> {
+                spinnerTouched = true;
+                v.performClick();
+                return false;
+            });
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    OptionModel optionModel = (OptionModel) parent.getItemAtPosition(position);
-                    listener.onParamChange(optionModel.id, getAdapterPosition());
+                    if (spinnerTouched) {
+                        OptionModel optionModel = (OptionModel) parent.getItemAtPosition(position);
+                        listener.onParamChange(optionModel.id, getAdapterPosition());
+                        spinnerTouched = false;
+                    }
                 }
+
                 @Override
-                public void onNothingSelected(AdapterView<?> parent) {}
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
             });
         }
+
         @Override
         public void init(StyleModel styleModel, String[] dataset, int position) {
             super.init(styleModel, dataset, position);
-            ArrayAdapter<OptionModel> adapter = new ArrayAdapter(itemView.getContext(), R.layout.support_simple_spinner_dropdown_item, styleModel.params[position].extra);
+            ArrayAdapter<OptionModel> adapter = new ArrayAdapter(itemView.getContext(),
+                    R.layout.support_simple_spinner_dropdown_item, styleModel.params[getAdapterPosition()].extra);
             spinner.setAdapter(adapter);
         }
     }
 
     public static class ParamColorViewHolder extends ParamViewHolder {
         public ColorPanelView colorPanelView;
-        public ParamColorViewHolder(View itemView, ParamChangeListener listener) {
-            super(itemView, listener);
+
+        public ParamColorViewHolder(StyleModel styleModel, View itemView, ParamChangeListener listener) {
+            super(styleModel, itemView, listener);
             colorPanelView = itemView.findViewById(R.id.param_color_panel);
             itemView.setOnClickListener(v -> {
                 AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
@@ -156,8 +182,10 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
                         colorPanelView.setColor(color);
                         listener.onParamChange(ColorHelper.toColorHex(color), getAdapterPosition());
                     }
+
                     @Override
-                    public void onDialogDismissed(int dialogId) { }
+                    public void onDialogDismissed(int dialogId) {
+                    }
                 });
 
                 Bundle args = new Bundle();
@@ -166,6 +194,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
                 colorPickerDialogFragment.show(activity.getSupportFragmentManager(), "colorPicker");
             });
         }
+
         @Override
         public void init(StyleModel styleModel, String[] dataset, int position) {
             super.init(styleModel, dataset, position);
@@ -176,14 +205,16 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.ParamViewHol
     private class AddCollectionTask extends AsyncTask<String, Void, Void> {
 
         final Context context;
+        byte[] imgData;
 
-        public AddCollectionTask(Context context) {
+        public AddCollectionTask(Context context, byte[] imgData) {
             this.context = context;
+            this.imgData = imgData;
         }
 
         @Override
         protected Void doInBackground(String... strings) {
-            AppDatabase.getInstance(context).collectionDao().insertCollection(EntityHelper.toCollection(styleModel, Arrays.asList(mDataset), strings[0], context));
+            AppDatabase.getInstance(context).collectionDao().insertCollection(EntityHelper.toCollection(styleModel, Arrays.asList(mDataset), strings[0], imgData, context));
             return null;
         }
 

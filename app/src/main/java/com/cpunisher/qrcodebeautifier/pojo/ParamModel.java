@@ -10,6 +10,8 @@ public class ParamModel implements Serializable {
     public String def;
     public OptionModel[] extra;
 
+    public long databaseId;
+
     public ParamModel() {}
 
     public ParamModel(String id, String name, String type, String def, OptionModel[] extra) {
