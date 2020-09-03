@@ -24,4 +24,6 @@
     <string name="delete_successfully">删除成功</string>
     <string name="collection_name">收藏名称</string>
     <string name="remove_collection">是否取消收藏?</string>
+
+    <string name="not_loaded">图片还在加载</string>
 </resources>

@@ -82,6 +82,14 @@ public class CreatorFragment extends Fragment implements ParamUpdatedListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // check if image is loaded
+        if (item.getItemId() != R.id.action_about) {
+            if (!(resultImageView.getDrawable() instanceof BitmapDrawable)) {
+                Toast.makeText(getContext(), R.string.not_loaded, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        }
+
         if (item.getItemId() == R.id.action_share) {
             try {
                 File cachePath = new File(getContext().getCacheDir(), "images");
